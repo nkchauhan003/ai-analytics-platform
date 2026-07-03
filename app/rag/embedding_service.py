@@ -1,35 +1,25 @@
-import google.generativeai as genai
-
+from google import genai
 from app.config import GEMINI_API_KEY
 
-genai.configure(api_key=GEMINI_API_KEY)
-client = genai
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 def generate_embedding(text: str) -> list[float]:
-    """
-    Generates an embedding for a single semantic chunk.
-    """
-
-    response = client.embed_content(
-        model="gemini-embedding-2",
-        content=text
+    response = client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=text
     )
 
-    return response['embedding']
+    return response.embeddings[0].values
 
 
 def generate_embeddings(texts: list[str]) -> list[list[float]]:
-    """
-    Generates embeddings for multiple semantic chunks.
-    """
+    response = client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=texts
+    )
 
-    embeddings = []
-    for text in texts:
-        response = client.embed_content(
-            model="gemini-embedding-2",
-            content=text
-        )
-        embeddings.append(response['embedding'])
-    
-    return embeddings
+    return [
+        embedding.values
+        for embedding in response.embeddings
+    ]
