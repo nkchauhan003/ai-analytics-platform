@@ -30,11 +30,8 @@ def create_vector_index(index_name, dimensions):
         }
     )
 
-    print(response)
-
 
 def bulk_index(index_name, documents):
-
     actions = [
         {
             "_index": index_name,
@@ -50,16 +47,13 @@ def bulk_index(index_name, documents):
         stats_only=False
     )
 
-    print("SUCCESS =", success)
-    print("ERRORS =", errors)
+    print("SUCCESS =", success, "ERRORS =", errors)
 
 
 def generate_vectors(
         source_index,
         destination_index
 ):
-    print("Searching:", source_index)
-    print(es.info())
     response = es.search(
         index=source_index,
         body={
@@ -70,19 +64,8 @@ def generate_vectors(
         }
     )
 
-    print(response)
-    print(response["hits"]["total"])
-    print(len(response["hits"]["hits"]))
-
     chunks = response["hits"]["hits"]
-
-    print("Hits =", len(chunks))
-
-    print(f"Reading from {source_index}")
-    print(f"Found {len(chunks)} chunks")
-
     vector_documents = []
-
     dimensions = None
 
     for hit in chunks:
@@ -92,7 +75,6 @@ def generate_vectors(
         embedding = generate_embedding(
             chunk["content"]
         )
-        print(f"Embedding dimension = {len(embedding)}")
         if dimensions is None:
             dimensions = len(embedding)
 
@@ -100,7 +82,7 @@ def generate_vectors(
                 destination_index,
                 dimensions
             )
-        print(f"Creating index {destination_index}")
+            print(f"Creating index {destination_index}")
         vector_documents.append({
             "documentId": chunk["documentId"],
             "sourceIndex": chunk["sourceIndex"],

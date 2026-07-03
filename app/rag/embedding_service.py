@@ -1,10 +1,9 @@
-from google import genai
+import google.generativeai as genai
 
 from app.config import GEMINI_API_KEY
 
-client = genai.Client(
-    api_key=GEMINI_API_KEY
-)
+genai.configure(api_key=GEMINI_API_KEY)
+client = genai
 
 
 def generate_embedding(text: str) -> list[float]:
@@ -12,12 +11,12 @@ def generate_embedding(text: str) -> list[float]:
     Generates an embedding for a single semantic chunk.
     """
 
-    response = client.models.embed_content(
+    response = client.embed_content(
         model="gemini-embedding-2",
-        contents=text
+        content=text
     )
 
-    return response.embeddings[0].values
+    return response['embedding']
 
 
 def generate_embeddings(texts: list[str]) -> list[list[float]]:
@@ -25,12 +24,12 @@ def generate_embeddings(texts: list[str]) -> list[list[float]]:
     Generates embeddings for multiple semantic chunks.
     """
 
-    response = client.models.embed_content(
-        model="gemini-embedding-2",
-        contents=texts
-    )
-
-    return [
-        embedding.values
-        for embedding in response.embeddings
-    ]
+    embeddings = []
+    for text in texts:
+        response = client.embed_content(
+            model="gemini-embedding-2",
+            content=text
+        )
+        embeddings.append(response['embedding'])
+    
+    return embeddings

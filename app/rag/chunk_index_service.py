@@ -48,7 +48,19 @@ def index_chunks(index_name, chunks):
             "_source": chunk
         })
 
-    helpers.bulk(es, actions)
+    success, errors = helpers.bulk(
+        es,
+        actions,
+        raise_on_error=False,
+        stats_only=False
+    )
+
+    print(f"Indexed {success} chunks into {index_name}")
+    if errors:
+        print(f"ERRORS during indexing: {errors}")
+    
+    # Refresh index to make data searchable immediately
+    es.indices.refresh(index=index_name)
 
 
 def index_order_chunks(chunks):
