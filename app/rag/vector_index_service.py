@@ -5,8 +5,6 @@ from app.rag.embedding_service import generate_embedding
 
 
 def create_vector_index(index_name, dimensions):
-    print(f"Creating {index_name}")
-
     if es.indices.exists(index=index_name):
         es.indices.delete(index=index_name)
 
@@ -32,6 +30,7 @@ def create_vector_index(index_name, dimensions):
 
 
 def bulk_index(index_name, documents):
+    print(documents[0])
     actions = [
         {
             "_index": index_name,
@@ -60,7 +59,7 @@ def generate_vectors(
             "query": {
                 "match_all": {}
             },
-            "size": 1500
+            "size": 1
         }
     )
 
@@ -75,6 +74,7 @@ def generate_vectors(
         embedding = generate_embedding(
             chunk["content"]
         )
+
         if dimensions is None:
             dimensions = len(embedding)
 
@@ -82,7 +82,6 @@ def generate_vectors(
                 destination_index,
                 dimensions
             )
-            print(f"Creating index {destination_index}")
         vector_documents.append({
             "documentId": chunk["documentId"],
             "sourceIndex": chunk["sourceIndex"],
@@ -92,12 +91,10 @@ def generate_vectors(
             "content": chunk["content"],
             "embedding": embedding
         })
-    print(f"Indexing {len(vector_documents)} documents into {destination_index}")
     bulk_index(
         destination_index,
         vector_documents
     )
-    print("Bulk indexing completed")
 
 
 def generate_order_vectors():

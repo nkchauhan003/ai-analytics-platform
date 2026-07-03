@@ -4,7 +4,6 @@ from app.elasticsearch_client import es
 
 
 def create_chunk_index(index_name):
-
     if es.indices.exists(index=index_name):
         es.indices.delete(index=index_name)
 
@@ -36,13 +35,11 @@ def create_chunk_index(index_name):
 
 
 def index_chunks(index_name, chunks):
-
     create_chunk_index(index_name)
 
     actions = []
 
     for chunk in chunks:
-
         actions.append({
             "_index": index_name,
             "_source": chunk
@@ -55,10 +52,9 @@ def index_chunks(index_name, chunks):
         stats_only=False
     )
 
-    print(f"Indexed {success} chunks into {index_name}")
     if errors:
         print(f"ERRORS during indexing: {errors}")
-    
+
     # Refresh index to make data searchable immediately
     es.indices.refresh(index=index_name)
 
